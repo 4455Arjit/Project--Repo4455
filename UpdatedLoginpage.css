@@ -1,0 +1,22 @@
+*{
+    margin:0;
+}
+body{
+    background-color:black;
+    color:green;
+    align-items: center;
+}
+.styleblock {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    justify-items: center;
+    margin: 0 auto;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.emailstyle, .userstyle, .passstyle {
+    width: 100%;
+    text-align: center;
+}

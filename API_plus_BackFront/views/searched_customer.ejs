@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searched Customer</title>
+</head>
+<body>
+
+    <div id="searched_customer" style="border: 4px dotted black;">
+            <h1>CUSTOMER DETAILS:</h1>
+        <ul> 
+            <li><h2>Customer Name:-> <%= searched_customer.person_name %></h2> </li> 
+            <li><h2>Phone Number:-> <%= searched_customer.phone_no %></h2></li>
+           <li> <h2>Payment Status:-> <%= searched_customer.payment_status %></h2> </li> 
+           <li> <h2> Work you did for your Customer:-><%= searched_customer.reason_for_earning %></h2></li>
+           <li> <h2>Payment Deadline (after this Date: Fine will be charged):-><%= searched_customer.deadline_for_payment %></h2></li>
+        </ul>
+    </div>
+              
+</body>
+</html>

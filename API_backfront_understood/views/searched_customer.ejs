@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searched Customer</title>
+</head>
+
+<body>
+
+    <div id="searched_customer" style="border: 4px dotted black;">
+        <h1>CUSTOMER DETAILS:</h1>
+        <ol>
+            <% searched_customer.forEach(user_info=>{ %>
+                <div style="border: 4px dotted black; margin-top:10px;margin-right: 10px;margin-left: 24px;">
+                    <li style="font-size:35px;"></li>
+                        <ul>
+                            <li>
+                                <h2>Customer Name:-> <%= user_info.person_name %>
+                                </h2>
+                            </li>
+                            <li>
+                                <h2>Phone Number:-> <%= user_info.phone_no %>
+                                </h2>
+                            </li>
+                            <li>
+                                <h2>Payment Status:-> <%= user_info.payment_status %>
+                                </h2>
+                            </li>
+                            <li>
+                                <h2> Work you did for your Customer:-><%= user_info.reason_for_earning %>
+                                </h2>
+                            </li>
+                            <li>
+                                <h2>Payment Deadline (after this Date: Fine will be charged):-><%=
+                                        user_info.deadline_for_payment %>
+                                </h2>
+                </div>
+                <% })%>
+
+                    </ul>
+                    </li>
+        </ol>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Customers</title>
+</head>
+
+<body>
+    <div>
+        <h1>Your Pending Work</h1>
+        <h3>Now,</h3>
+        <h4>You don't have to worry about your Money Anymore...</h4>
+        <h4> Just Add your customer and Notify them before the Deadline..</h4>
+        <h4> After Deadline -> Extra Money Will be charged as 5% increment PER</h4>
+        <h4> 1 day</h4>
+        <button><a href="/addcustomer">CREATE</a></button>
+    </div>
+    <div class="card" style="border:5px solid black; border-radius: 50px;">
+        <ol>
+            <% all_cards.forEach(user_info=>{ %>
+                <li>
+                    <div class="internal_content"
+                        style="margin:4px 4px 4px 4px; border:4px solid black; border-radius: 50px;">
+                        <ul>
+                            <li>Customer Name:-> </li>
+                            <%= user_info.person_name %>
+                                <li>Phone Number:-> </li>
+                                <%= user_info.phone_no %>
+                                    <li>Payment Status:-> </li>
+                                    <%= user_info.payment_status %>
+                                        <li>Work you did for your Customer:-></li>
+                                        <%= user_info.reason_for_earning %>
+                                            <li> Payment Deadline (after this Date: Fine will be charged):-></li>
+                                            <%= user_info.deadline_for_payment %>
+                                                <div>
+                                                    <!--For Patching--> <button><a
+                                                            href="/updatingcustomer/<%=user_info.phone_no%>">Edit</a></button>
+                                                    <form action="/deletingcustomer/<%= user_info.phone_no %>"
+                                                        method="POST" style="display:inline;">
+                                                        <button type="submit">Delete</button>
+                                                    </form>
+                                                </div>
+                        </ul>
+                    </div>
+                </li>
+                <% }); %>
+        </ol>
+    </div>
+</body>
+
+</html>

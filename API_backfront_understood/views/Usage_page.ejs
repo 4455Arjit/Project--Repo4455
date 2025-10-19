@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating Customer</title>
+</head>
+
+<body>
+        <h1>
+            <%= heading %>
+        </h1>
+    <form action="/addcustomer" method="post">
+        Customer Name:
+        <div>
+
+            <input type="text" name="custmr_name" placeholder="Customer Name">
+        </div>
+        <div>
+
+            Phone Number:
+        </div>
+        <div>
+
+            <input type="number" name="phone" placeholder="Phone Number">
+        </div>
+        Payment + Status:
+        <div>
+
+            <input type="text" name="money_amt" placeholder="Amount,Payment Status">
+        </div>
+        Job you did for Customer:
+        <div>
+
+            <input type="text" name="job_i_did">
+        </div>
+        <div>
+            Last Date for Customer to Pay(After that Customer will be Fined):
+
+        </div> <input type="text" name="payment_deadline">
+        <div>
+            <button type="submit">
+                <%=submit %>
+            </button>
+        </div>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editing Customer</title>
+</head>
+
+<body>
+    <h1>
+        <h1>
+            <%= heading %>
+        </h1>
+    </h1>
+    <% user_info.forEach(user=>{ %>
+
+        <form action="/updatingcustomer/<%=user.phone_no%>" method="post">
+            <div style="border:5px solid black; border-radius: 20px; margin:7px 7px 7px 7px; padding: 10px;">
+            Customer Name:
+            <div>
+                <input type="text" name="custmr_name" placeholder="Customer Name" value="<%=user.person_name%>">
+            </div>
+            Amount of Money Customer has to Pay:
+            <div>
+
+                <input type="text" name="payment_status" placeholder="Amount and Status" value="<%=user.payment_status%>">
+            </div>
+            Job you did for Customer:
+            <div> 
+
+                <input type="text" name="job_i_did" value="<%=user.reason_for_earning%>">
+            </div>
+            <div>
+                Last Date for Customer to Pay(After that Customer will be Fined):
+
+            </div> <input type="text" name="payment_deadline" value="<%=user.deadline_for_payment%>">
+            <div>
+                <button type="submit">
+                    <%=submit %>
+                </button>
+            </div>
+        </div>
+        </form>
+        <% }) %>
+</body>
+
+</html>

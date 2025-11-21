@@ -4,12 +4,12 @@ import pg from "pg";
 const port=4499;
 const appl=express();
 let datab=new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database: "todo_crush",
-    password: "VegitoTheGodKiller445511", //Im on Localhost so i don't know how to encrypt my password on localhost 
+    user: "postgres",  //use your user name
+    host: "localhost",  //if you're on localhost then let it be like this.
+    database: "todo_crush",  //If you want to use your own name then use it .but remember to edit the QUERIES below if you're using it in your own way.
+    password: "User must use his own_password", //Im on Localhost so i don't know how to encrypt my password on localhost 
     //i code alone 😅😅bro so it doesn't matter if im using my full password (if you can show me how to use is safely then tell me👍..it'll be huge help)
-    port:6511,
+    port:6511,  //Use your database Port mumber here.
 });
 datab.connect();
 appl.use(bodyParser.json());
@@ -66,4 +66,5 @@ appl.post("/api/deleting_task/:id",async(requ,resp)=>{
 }); //DONE
 appl.listen(port,()=>{
     console.log("Here we are->",port);
+
 });

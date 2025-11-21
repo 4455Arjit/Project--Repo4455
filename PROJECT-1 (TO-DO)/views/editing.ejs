@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do(For Knowledge)</title>
+</head>
+<body>
+    <h2>Edit Current Task with ID: <%=user_task.id%></h2>
+    <form action="/editing_task/<%=user_task.id%>" method="post">
+        <input type="text" name="edit_current_task" id="<%=user_task.id%>" value="<%=user_task.task_info %>">
+        <button type="submit">Edit</button>
+    </form>
+               
+</body>
+</html>

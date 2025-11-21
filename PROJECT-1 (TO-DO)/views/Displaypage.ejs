@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do(For Knowledge)</title>
+</head>
+<body>
+<div class="alltasks">
+    <h1>Task Crusher-></h1>
+        <div class="current_tasks">
+            <ol>
+                <% all_tasks.forEach((task)=>{ %>
+                <li>
+                    <h4><%= task.task_info %>
+                        <div><a href="/edit_task/<%=task.id%>" id="<%=task.id%>"><button>Edit</button>
+                        </a>
+                    </div>
+                <form action="/delete_task/<%= task.id%>" method="post"><button type="submit">Delete</button></a></h4>
+                </form></li>
+                <%}); %>
+            </ol>
+     </div>
+ </div>
+    <form action="/add_task" method="post" style="position: fixed;
+    top: 20%;
+    right: 10%;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 1000;">
+        <input type="text" name="adding_task" placeholder="Add your Task">
+        <input type="submit" name="Submission" value="+" style="background-color: purple; height: 30px;width: 30px;">
+    </form>
+<style>
+    body{
+        background-color: black;
+        color:white;
+    }
+</style> 
+</body>
+</html>

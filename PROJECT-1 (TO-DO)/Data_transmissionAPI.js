@@ -6,12 +6,12 @@ const port=4499;
 const appl=express();
 //DATABASE CONNECTION SECTION<-----
 let datab=new pg.Client({
-    user: "postgres",  //use your user name
-    host: "localhost",  //if you're on localhost then let it be like this.
-    database: "todo_crush",  //If you want to use your own name then use it .but remember to edit the QUERIES below if you're using it in your own way.
-    password: "User must use his own_password", //Im on Localhost so i don't know how to encrypt my password on localhost 
-    //i code alone 😅😅bro so it doesn't matter if im using my full password (if you can show me how to use is safely then tell me👍..it'll be huge help)
-    port:6511,  //Use your database Port mumber here.
+    //user must use his own Credentials for using this Code file
+    user:process.env.PG_user, 
+    host: process.env.PG_host,
+    database: process.env.PG_database,
+    password: process.env.PG_pass,
+    port:parseInt(process.env.PG_port || "6511",10),
 });
 //DATABASE SECTION END------>
 datab.connect();
@@ -71,4 +71,5 @@ appl.listen(port,()=>{
     console.log("Here we are->",port);
 
 });
+
 

@@ -1,93 +1,202 @@
 import express from "express";
-import bodyParser from "body-parser";
 import dotenv from 'dotenv';
-import pg from "pg";
+import {Pool} from "pg";
 import bcrypt from "bcrypt";
-const saltrounds = 3;
-const app = express();
-const port = 5422;
+import passport from "passport";
+import session from "express-session";
+import {Strategy} from 'passport-local';
+import cors from 'cors';
+//All paths: POST- /api/regis  ,POST- /api/login  ,GET- /api/public_posts
+const salt_rounds=3;
+const app=express();
+const port =5422;
 dotenv.config();
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-const dbase = new pg.Client({
+app.use(express.urlencoded({extended:true}));
+app.use(cors({
+    origin:"http://localhost:5433",
+    credentials:true
+}));
+app.use(session({
+    secret:process.env.Session_key,
+    resave:false,
+    saveUninitialized:true,
+    cookie:{
+        maxAge:60000 * 5,  //(For demonstration Purposes only)
+    },
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+const d_base=new Pool({
     user: process.env.PG_user,
     host: process.env.PG_host,
     database: process.env.PG_database,
     password: process.env.PG_pass,
     port: parseInt(process.env.PG_port || "6511", 10),
+    max: 100,
+    idleTimeoutMillis:50000,
+    connectionTimeoutMillis:3000
 });
-dbase.connect();
+app.use((requ, resp, next) => {  //This block is not necessary but helping me somehow tracking my progress🥴
+    console.log(requ.sessionID, "<- Session ID");
+    console.log(requ.session, "<=Session");
+    console.log(requ.user, "<-User i Guess");
+    next();
+});
+passport.use(new Strategy(
+    {
+        usernameField:'user_email',
+        passwordField:'user_pass'
+    },
+    async function verify_him(user_email,user_pass,calling){
 
-app.post("/api/regis", async (requ, resp) => {
+        try{ 
+            const get_user_data=await d_base.query("SELECT user_name,email,user_credits FROM user_creds WHERE email=$1",[user_email]);
+            const get_user_info=get_user_data.rows;
+            if(get_user_info.length>0){
+                const get_user_details=get_user_info[0];
+                const get_password_data= await d_base.query("SELECT pass FROM user_creds WHERE email=$1",[user_email]);
+                const get_password_info= get_password_data.rows[0];
+                const compare_pass=await bcrypt.compare(user_pass,get_password_info.pass);
+                console.log(compare_pass,"Comparison Response"); //Will be True or False
+                if(compare_pass==true){
+                    console.log("Log-In successfull!");
+                    return calling(null,get_user_details);
+                }else{
+                    const wrong_pass="Wrong Password ! Try again until you get Tired and Smash your Device on the floor!☠️";
+                    console.log(wrong_pass,"Error 1");
+                    return calling(null,false,{wrong_passing:wrong_pass});
+                }
+            }else{
+                const exist_er="User is not Born Yet ! Please Go to the Doctor: I mean SignUP page!";
+                console.log(exist_er," Error 2");
+                return calling(null,false,{no_existence:exist_er});
+            }
+
+        }catch(e){
+            return calling(e);
+        }
+
+
+    }
+));
+passport.serializeUser((user_here,calling)=>{
+    calling(null,user_here);
+});
+passport.deserializeUser((user_here,calling)=>{
+    calling(null,user_here);
+});
+app.post("/api/login",(requ,resp,next)=>{
+    passport.authenticate('local',(er,user,info)=>{
+        if(er){
+            return next(er);
+        }
+        if(!user){
+            if(info.wrong_passing){
+                console.log(info.wrong_passing,"Error 1 for Password");
+                return resp.status(401).json({
+                    pass_err:info.wrong_passing
+                });
+            }else if(info.no_existence){
+                console.log(info.no_existence,"Error 2 for Not Existing");
+                return resp.status(404).json({
+                    not_exist_err:info.no_existence,
+                });
+            }return resp.status(404).json({
+                usermail_raw:requ.body.user_email,
+                pass_error_raw:info.wrong_pass,
+                not_exist_raw:info.no_existence,
+            });
+        }requ.logIn(user,loginErr=>{    //Explain this part
+            if(loginErr)return next(loginErr);
+            return resp.json({user});
+        });
+    })(requ,resp,next);            //Explain this Part
+});
+app.get("/api/public_posts",async(requ,resp)=>{
+    if(requ.isAuthenticated()){
+        const user_info=requ.user;
+        console.log(user_info,"Full Info of User except Passkey");
+        const update_points=await d_base.query("SELECT user_credits FROM user_creds WHERE user_name=$1",[user_info.user_name]);
+        if(update_points.rows.length>0){
+            user_info.user_credits=update_points.rows[0].user_credits;
+        }
+        const get_posts=await d_base.query("SELECT post_of_user FROM pub_info");
+        console.log(get_posts);
+        return resp.status(200).json({
+            uusername_raw:user_info,
+            user_points_raw:user_info,
+            retrieved_posts:get_posts.rows,
+        });
+    }else{
+        return resp.status(400).json({Login_again: "Session EXPIRED!..Give some medicine to Revive him...i mean Login Again"});
+    }
+});
+//I want to get the current user who is currently logged in.
+
+app.post("/api/post_creation",async(requ,resp)=>{  //Then i want to grab the current user when im about to make a Post on a page and when i Create a post , i want the user_name to be written in the end of the Text Post automatically at the backend:so then the post will be displayed and the username will be displayed at the end automatically.
+    try{
+        if(requ.isAuthenticated()){
+            const full_req=requ;
+            console.log(full_req,"<<<<<<<<<<======FULL REQUEST????????????????????????????????");
+            const user_info=requ.user;
+            const usr_name=user_info.user_name;
+            console.log(usr_name,"<<<<<<<_________THIS IS USER_NAME INFO");
+            const raw_post=requ.body["create_post"];
+            const user_post=`${raw_post} :by-${usr_name}`;
+            const user_post_query=await d_base.query("INSERT INTO pub_info(user_name,post_of_user) values($1,$2)",[usr_name,user_post]);
+            const success_point=3;
+            await d_base.query("UPDATE user_creds SET user_credits=user_credits+$1 WHERE user_name=$2",[parseInt(success_point),usr_name]);
+            if(user_post_query){
+                return resp.status(200).json({
+                success_mess:"Post Created",
+               });
+            }else{
+                return resp.status(404).json({
+                    failure_mess:"Sorry We messed up! somehow",
+                });
+            }
+        }
+    }catch(e){
+        console.log(e);
+        return resp.json({redirection_mess:"Redirect to Feed"});
+    }
+    
+});
+app.post("/api/regis",async (requ,resp)=>{
     try {
-        const user_email = requ.body["user_email"];
-        const plain_pass = requ.body["user_pass"];
-        let user_points = user_email.trim().length;
-        console.log("User Points : " + user_points);
-        if (user_email && plain_pass) {
-            const check_existing = await dbase.query("SELECT * FROM user_creds where email=$1", [user_email.trim()]);
-            if (check_existing.rows.length > 0) {
-                return  resp.status(400).json({
-                    existing_user_err:"User already exists! Go to login Page",
+        const user_email=requ.body["user_email"];
+        const plain_pass= requ.body["user_pass"];
+        const username=user_email.split("@")[0];
+        let user_points=user_email.trim().length;
+        if(user_email && plain_pass){
+            const check_if_exist=await d_base.query("SELECT * FROM user_creds WHERE email=$1",[user_email]);
+            if(check_if_exist.rows.length>0){
+                return resp.status(400).json({
+                    exist_er:"User Exists on the Planet!",
                 });
             }else{
-                const hashed_pass=await bcrypt.hash(plain_pass, saltrounds);
-                const q1=await dbase.query("INSERT INTO user_creds (email,pass,user_credits) VALUES($1,$2,$3) RETURNING*",[user_email,hashed_pass,parseInt(user_points,10)]);
-                const q2=await dbase.query("INSERT INTO hash_passes (email,pass) VALUES($1,$2) RETURNING*",[user_email,hashed_pass]);
-                console.log(q1, "<-Here Query1");
-                let user_posts = await dbase.query("SELECT post_of_user FROM pub_info");
-                console.log(user_posts.rows);
-                console.log(q2,"<-Here is Query2");
-                resp.json({
-                    usermail: user_email,
+                const hashing=await bcrypt.hash(plain_pass,salt_rounds);
+                await d_base.query("INSERT INTO user_creds (email,pass,user_credits,user_name) VALUES($1,$2,$3,$4) RETURNING*", [user_email, hashing, parseInt(user_points, 10), username])
+                .then(query_result=>{
+                    console.log(query_result,"The Promise Result")
+                    return resp.status(200).json({
+                        user_e_mail:user_email,
+                    });
                 });
             }
-        } else {
-           return resp.status(401).json({
-                empty_columns_err:"Empty Columns!Fill them right away !",
+        }else{
+            return resp.status(405).json({
+                empty_columns_err:"Columns are dead!",
             });
         }
-    }
-    catch (err) {
-        console.log(err);
+    } catch (e) {
+        console.log(e);
         return resp.status(404).json({
-            bad_gateway_err:"Bad Response!"+resp.sendStatus(404),
+            bad_gateway_err:"Bad Response! You're gettin Naauughty! Behave Yourself",
         });
     }
-});  //Done
-
-app.post("/api/login", async (requ, resp) => {
-        const user_email = requ.body['user_email'];
-        const plain_pass = requ.body['user_pass'];
-        const Q1 = await dbase.query("SELECT * FROM user_creds WHERE email=$1", [user_email]);
-        try{
-        if (Q1.rows.length > 0) {
-        let user_details = Q1.rows[0];
-        const stored_pass = user_details.pass;
-        console.log(stored_pass);
-        const pass_match= await bcrypt.compare(plain_pass,stored_pass);
-        if (!pass_match){
-            return resp.status(401).json({
-                wrong_pass_error:"Passwords Mismatch ! Try again",
-            });
-            } else {
-                const Q2 = await dbase.query("SELECT post_of_user FROM pub_info");
-                let user_credits = await dbase.query("SELECT user_credits FROM user_creds WHERE email=$1", [user_email.trim()]);
-                resp.json({
-                    all_posts: Q2.rows,
-                    current_user_points: user_credits.rows[0],
-                });
-            }
-        } else {
-            return resp.status(401).json({
-                non_existent:"User Not Found!",
-            });
-        }
-    }catch(err){
-        resp.sendStatus(404);
-        }
-    }); //Done
-
-app.listen(port, () => {
-    console.log("API here-> http://localhost:" + port);
+});
+app.listen(port,()=>{
+    console.log("here im -> http://localhost:"+port);
 });

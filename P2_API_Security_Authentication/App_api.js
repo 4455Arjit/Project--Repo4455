@@ -9,7 +9,7 @@ import cors from 'cors';
 //All paths: POST- /api/regis  ,POST- /api/login  ,GET- /api/public_posts
 const salt_rounds=3;
 const app=express();
-const port =process.env.PORT || 5432;
+const port =process.env.PORT;
 dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -198,3 +198,4 @@ app.listen(port,()=>{
     console.log("here im -> http://localhost:"+port);
 
 });
+

@@ -9,12 +9,12 @@ import cors from 'cors';
 //All paths: POST- /api/regis  ,POST- /api/login  ,GET- /api/public_posts
 const salt_rounds=3;
 const app=express();
-const port =5422;
+const port =process.env.PORT || 5432;
 dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors({
-    origin:"http://localhost:5433",
+    origin:true,
     credentials:true
 }));
 app.use(session({
@@ -22,17 +22,14 @@ app.use(session({
     resave:false,
     saveUninitialized:true,
     cookie:{
-        maxAge:60000 * 5,  //(For demonstration Purposes only)
+        maxAge:60000 * 60*24,  //(For demonstration Purposes only)
     },
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 const d_base=new Pool({
-    user: process.env.PG_user,
-    host: process.env.PG_host,
-    database: process.env.PG_database,
-    password: process.env.PG_pass,
-    port: parseInt(process.env.PG_port || "6511", 10),
+    connectionString:process.env.DATABASE_URL,
+     ssl: { rejectUnauthorized: false },
     max: 100,
     idleTimeoutMillis:50000,
     connectionTimeoutMillis:3000
@@ -199,4 +196,5 @@ app.post("/api/regis",async (requ,resp)=>{
 });
 app.listen(port,()=>{
     console.log("here im -> http://localhost:"+port);
+
 });

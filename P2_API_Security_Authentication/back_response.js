@@ -1,9 +1,9 @@
 import express from "express";
 import axios from "axios";
-const port = 5433;
+const port = process.env.PORT;
 const app = express();
 axios.defaults.withCredentials=true;
-const API_URL = "http://localhost:5422"
+const API_URL = process.env.NODE_ENV === 'production'? "https://project-repo4455.onrender.com/" : "http://localhost:5422";
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //----------------------------Landing Page----------------------------------
@@ -32,7 +32,7 @@ app.post("/regCredentials", async (requ, resp) => {
     }
     }
 catch(err){
-    const err_data=err.response.data;
+    const err_data=err.response?.data;
     console.log(err_data);
      if(err_data.exist_er){
         return resp.render("register.ejs",{
@@ -135,6 +135,7 @@ if(post_api_data.success_mess){
 });
 
 app.listen(port, () => {
-    console.log("here-> http://localhost:" + port);
+    console.log("here's Our Server running: -> " + port);
 }); //Done
+
 //---------All OUT------------

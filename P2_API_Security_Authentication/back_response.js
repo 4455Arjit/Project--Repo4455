@@ -3,7 +3,7 @@ import axios from "axios";
 const port = process.env.PORT;
 const app = express();
 axios.defaults.withCredentials=true;
-const API_URL = process.env.NODE_ENV === 'production'? "https://project-repo4455.onrender.com/" : "http://localhost:5422";
+const API_URL = process.env.NODE_ENV === 'production'? "https://project-repo4455.onrender.com" : "http://localhost:5422";
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //----------------------------Landing Page----------------------------------
@@ -139,3 +139,4 @@ app.listen(port, () => {
 }); //Done
 
 //---------All OUT------------
+
